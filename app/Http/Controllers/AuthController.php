@@ -65,4 +65,29 @@ class AuthController extends Controller
             'message' => 'Berhasil logout.',
         ], 200);
     }
+
+    public function profile()
+    {
+        try {
+            $user = JWTAuth::parseToken()->authenticate();
+            if ($user) {
+                return response()->json([
+                    'status' => 200,
+                    'error' => false,
+                    'message' => 'Berhasil login.',
+                    'data' => [
+                        'full_name' => $user->full_name,
+                        'email' => $user->email,
+                    ]
+                ], 200);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 401,
+                'error' => true,
+                'message' => 'Token tidak valid atau user tidak ditemukan.',
+            ], 401);
+        }
+    }
+
 }
