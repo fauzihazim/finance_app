@@ -13,3 +13,4 @@ Route::get('/auth/profile', [AuthController::class, 'profile'])->middleware('aut
 Route::post('/pockets', [PocketController::class, 'store'])->middleware('auth:api');
 Route::post('/incomes', [IncomeController::class, 'store'])->middleware('auth:api');
 Route::post('/expenses', [ExpenseController::class, 'store'])->middleware('auth:api');
+Route::get('/pockets/total-balance', [PocketController::class, 'totalBalance'])->middleware('auth:api');

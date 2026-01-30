@@ -21,21 +21,15 @@ class PocketController extends Controller
                 'name' => 'required|string|max:255',
                 'initial_balance' => 'required|numeric|min:0',
             ]);
-
-            // Simpan ke database
-            // $pocket = UserPocket::create([
-            //     'name' => $request->name,
-            //     'initial_balance' => $request->initial_balance,
-            // ]);
+            
             $user = JWTAuth::parseToken()->authenticate();
 
             $pocket = UserPocket::create([
                 'user_id' => $user->id,
                 'name' => $request->name,
-                'balance' => $request->initial_balance, // mapping ke kolom balance
+                'balance' => $request->initial_balance,
             ]);
-
-            // Response JSON
+            
             return response()->json([
                 'status' => 200,
                 'error' => false,
@@ -57,7 +51,54 @@ class PocketController extends Controller
                 'status' => 500,
                 'error' => true,
                 'message' => 'Terjadi kesalahan pada server.',
-                'detail' => $e->getMessage(), // opsional
+                'detail' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function totalBalance()
+    {
+        try {
+            $user = JWTAuth::parseToken()->authenticate();
+            
+            $total = UserPocket::where('user_id', $user->id)->sum('balance');
+
+            return response()->json([
+                'status'  => 200,
+                'error'   => false,
+                'message' => 'Berhasil mengambil total balance.',
+                'data'    => [
+                    'total' => $total
+                ]
+            ], 200);
+
+        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+            return response()->json([
+                'status' => 401,
+                'error'  => true,
+                'message'=> 'Token sudah kadaluarsa.',
+            ], 401);
+
+        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+            return response()->json([
+                'status' => 401,
+                'error'  => true,
+                'message'=> 'Token tidak valid.',
+            ], 401);
+
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            return response()->json([
+                'status' => 401,
+                'error'  => true,
+                'message'=> 'Token tidak ditemukan.',
+            ], 401);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'error'  => true,
+                'message'=> 'Terjadi kesalahan pada server.',
+                'detail' => $e->getMessage(),
             ], 500);
         }
     }
